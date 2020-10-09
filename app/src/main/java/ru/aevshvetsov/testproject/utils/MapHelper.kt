@@ -16,7 +16,7 @@ import ru.aevshvetsov.testproject.R
 /**
  * Created by Alexander Shvetsov on 07.10.2020
  */
-class MapHelper(private val mapView: MapView) {
+class MapHelper(val mapView: MapView) {
     private var markerInfoTitleColor: Int = 0
     var isMapInitialized = false
 
