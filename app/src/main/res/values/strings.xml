@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Test Project</string>
+    <string name="et_bottom_sheet_search_hint">Поиск</string>
+    <string name="main_screen_draw_circle_icon_hint">500m</string>
+    <string name="tv_bottom_sheet_grocery_icon_hint">Продукты</string>
+    <string name="tv_bottom_sheet_medical_services_icon_hint">Аптека</string>
+    <string name="tv_bottom_sheet_restaurants_icon_hint">Ресторан</string>
+    <string name="tv_bottom_sheet_cafe_icon_hint">Кафе</string>
+    <string name="iv_points_of_interests_error_message">Такого типа не существует</string>
+    <string name="points_of_interes_not_found_message">По близости не найдено точек интереса. Попробуйте изметить
+        положение на карте или выбрать другую категорию
+    </string>
+    <string name="tv_bottom_sheet_search_nearby_places">Искать места рядом</string>
 </resources>

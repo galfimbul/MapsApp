@@ -2,7 +2,6 @@ package ru.aevshvetsov.testproject.ui.activities
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,11 +10,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import ru.aevshvetsov.testproject.R
 import ru.aevshvetsov.testproject.ui.fragments.MainScreen
-import ru.aevshvetsov.testproject.ui.interfaces.OnFragmentInteraction
 import ru.aevshvetsov.testproject.utils.REQUEST_PERMISSIONS_REQUEST_CODE
 
-class MainActivity : AppCompatActivity(), OnFragmentInteraction {
-    var isPermissionGranted = false
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +63,8 @@ class MainActivity : AppCompatActivity(), OnFragmentInteraction {
                 this, permissionsToRequest.toTypedArray(),
                 REQUEST_PERMISSIONS_REQUEST_CODE
             )
+        } else {
+            setFragmentWithoutBackStack(MainScreen.newInstance())
         }
     }
 
@@ -74,9 +73,5 @@ class MainActivity : AppCompatActivity(), OnFragmentInteraction {
             .beginTransaction()
             .add(R.id.fragment_container, fragment)
             .commit()
-    }
-
-    override fun onFragmentInteraction(uri: Uri) {
-
     }
 }
