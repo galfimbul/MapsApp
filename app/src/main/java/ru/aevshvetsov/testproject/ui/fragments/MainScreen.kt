@@ -6,11 +6,11 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.fragment_main_screen.*
 import kotlinx.android.synthetic.main.maps_screen_bottom_sheet.*
@@ -22,9 +22,12 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Polygon
 import ru.aevshvetsov.testproject.R
+import ru.aevshvetsov.testproject.repository.IMainScreenRepository
+import ru.aevshvetsov.testproject.repository.MainScreenRepositoryImpl
 import ru.aevshvetsov.testproject.utils.*
+import ru.aevshvetsov.testproject.viewmodels.MainScreenViewModel
 
-class MainScreen : Fragment(), View.OnClickListener {
+class MainScreen : Fragment(R.layout.fragment_main_screen), View.OnClickListener {
     lateinit var mapView: MapView
     lateinit var mapHelper: MapHelper
     lateinit var locationManager: LocationManager
@@ -35,12 +38,16 @@ class MainScreen : Fragment(), View.OnClickListener {
     lateinit var pointIcon: Drawable
     private var circleColor: Int = 0
     private var isCircleDrawn = false
+    private lateinit var repo: IMainScreenRepository
+    private val mainScreenViewModel by lazy {
+        ViewModelProvider(this).get(MainScreenViewModel::class.java)
+    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_main_screen, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        repo = MainScreenRepositoryImpl()
+        mainScreenViewModel.setRepository(repo)
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,6 +61,36 @@ class MainScreen : Fragment(), View.OnClickListener {
         locationHelper = CurrentLocationHelper(locationManager)
         initMap()
         initViews()
+        subscribeObservers()
+    }
+
+    private fun subscribeObservers() {
+        mainScreenViewModel.placeInfoFromLocationName.observe(this) { address ->
+            Log.d("M_MainScreen:subscribe", "called")
+            if (address.countryName != GEOLOCATE_ERROR) {
+                mapHelper.geoLocate(address, pointIcon) {
+                    hideKeyboard()
+                    et_bottom_sheet_search.setText("")
+                    et_bottom_sheet_search.clearFocus()
+                    clearSearchView()
+                }
+            } else {
+                showToast(getString(R.string.main_screen_geolocate_failed_toast_message))
+                hideKeyboard()
+                clearSearchView()
+            }
+        }
+        mainScreenViewModel.pointsOfInterestsInfo.observe(this) { pointsList ->
+            mapHelper.showPointsOfInterest(
+                pointsList, pointIcon
+            )
+            Log.d("M_MainScreen", "test")
+        }
+    }
+
+    private fun clearSearchView() {
+        et_bottom_sheet_search.setText("")
+        et_bottom_sheet_search.clearFocus()
     }
 
     private fun initViews() {
@@ -106,10 +143,7 @@ class MainScreen : Fragment(), View.OnClickListener {
                 || keyEvent.action == KeyEvent.ACTION_DOWN
                 || keyEvent.action == KeyEvent.KEYCODE_ENTER
             ) {
-                val markerIcon = resources.getDrawable(R.drawable.ic_map_marker, activity?.theme)
-                mapHelper.geoLocate(textView.text.toString(), markerIcon) {
-                    hideKeyboard()
-                }
+                mainScreenViewModel.geoLocate(textView.text.toString(), POI_MAX_RESULT)
             }
             return@setOnEditorActionListener true
         }
@@ -155,10 +189,6 @@ class MainScreen : Fragment(), View.OnClickListener {
             else -> throw Exception(getString(R.string.iv_points_of_interests_error_message))
         }
         currentPlaceGeoPoint = GeoPoint(mapView.mapCenter)
-        mapHelper.showPointsOfInterest(
-            currentPlaceGeoPoint,
-            myPositionPointIcon,
-            placeType
-        )
+        mainScreenViewModel.getPointsOfInterestsInfo(currentPlaceGeoPoint, placeType)
     }
 }

@@ -11,4 +11,8 @@
         положение на карте или выбрать другую категорию
     </string>
     <string name="tv_bottom_sheet_search_nearby_places">Искать места рядом</string>
+    <string name="main_screen_geolocate_error">geolocate request failed</string>
+    <string name="main_screen_geolocate_failed_toast_message">Ошибка поиска местоположения. Уточните место и повторите
+        попытку.
+    </string>
 </resources>
